@@ -21,6 +21,7 @@ import os.path
 import pystache
 
 EXCLUDE = [ 'install.py', 'README\..*', 'LICENSE', '.*~', '#.*#' ]
+TEMPLATE_EXT = '.mustache'
 
 class Patterns(object):
     """Functions used to substitute tags in template files"""
@@ -50,34 +51,33 @@ class Patterns(object):
         return os.path.expanduser('~')
 
 
-def action(src, dst):
+def action(src_abs, dst_abs, _dst_abs):
     """Check if destination exists and ask for action if not identical"""
-    _dst = os.path.expanduser(dst)
-    if os.path.exists(dst) and not action.replace_all:
-        if os.path.islink(_dst):
-            _dst_link = os.readlink(_dst)
-            if os.path.abspath(_dst_link) == src:
-                print 'identical %s' % dst
+    if os.path.exists(_dst_abs) and not action.replace_all:
+        if os.path.islink(_dst_abs):
+            dst_link = os.readlink(_dst_abs)
+            if os.path.abspath(dst_link) == src_abs:
+                print 'identical %s' % dst_abs
                 return True
 
         answer = None
         while answer not in [ 'a', 'y', 'q', 'n' ]:
-            answer = raw_input('overwrite %s? [ynaq] ' % dst)
+            answer = raw_input('overwrite %s? [ynaq] ' % dst_abs)
 
         if answer == 'a':
             action.replace_all = True
-            os.unlink(_dst)
+            os.unlink(_dst_abs)
         elif answer == 'q':
             sys.exit(0)
         elif answer == 'n':
-            print 'skipping %s' % dst
+            print 'skipping %s' % dst_abs
             return True
         else:
-            print 'deleting %s' % dst
-            os.unlink(_dst)
+            print 'deleting %s' % dst_abs
+            os.unlink(_dst_abs)
     # Upon replace all we need to remove everytime
-    elif os.path.exists(dst) and action.replace_all:
-        os.unlink(_dst)
+    elif os.path.exists(_dst_abs) and action.replace_all:
+        os.unlink(_dst_abs)
 
     return False
 action.replace_all = False
@@ -85,34 +85,37 @@ action.replace_all = False
 def main():
     """Check DESCRIPTION"""
     excluded = [ re.compile(f) for f in EXCLUDE ]
-    template = re.compile('.*\.erb')
-    for _src in glob.iglob('*'):
-        src = os.path.dirname(os.path.abspath(__file__)) + '/' + _src
+    for src in glob.iglob('*'):
+        src_abs = os.path.dirname(os.path.abspath(__file__)) + '/' + src
         skip = False
-        for pat in excluded:
-            if pat.match(src):
+        for exc in excluded:
+            if exc.match(src):
                 skip = True
                 break
 
         if skip == True:
             continue
 
-        dst = '~/.' + _src
-        _dst = os.path.expanduser(dst)
-
-        skip = action(src, dst)
+        if src.endswith(TEMPLATE_EXT):
+            n = len(TEMPLATE_EXT)
+            dst_abs = '~/.' + src[:(-n)]
+        else:
+            dst_abs = '~/.' + src
+        _dst_abs = os.path.expanduser(dst_abs)
+        skip = action(src_abs, dst_abs, _dst_abs)
 
         if skip == True:
             continue
 
-        if template.match(_src):
+        if src_abs.endswith(TEMPLATE_EXT):
             renderer = pystache.Renderer()
             patterns = Patterns()
-            print renderer.render_path(src, patterns)
-            print 'generating %s' % dst
+            with open(_dst_abs, 'w') as f:
+                print 'generating %s' % dst_abs
+                f.write(renderer.render_path(src_abs, patterns))
         else:
-            os.symlink(src, _dst)
-            print 'linking %s' % dst
+            print 'linking %s' % dst_abs
+            os.symlink(src_abs, _dst_abs)
 
 if __name__ == '__main__':
     main()
