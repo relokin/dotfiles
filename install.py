@@ -97,7 +97,7 @@ def main():
         if skip == True:
             continue
 
-        dst = '/tmp/test/.' + _src
+        dst = '~/.' + _src
         _dst = os.path.expanduser(dst)
 
         skip = action(src, dst)
