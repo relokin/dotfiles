@@ -15,21 +15,45 @@ __maintainer__ = 'Nikos Nikoleris'
 __email__      = 'nikos.nikoleris@it.uu.se'
 __status__     = 'Prototype'
 
-import re, sys
-import glob
-import shutil
-import filecmp
+import re, sys, os, glob
 import os.path
 
+import pystache
+
 EXCLUDE = [ 'install.py', 'README\..*', 'LICENSE', '.*~', '#.*#' ]
+
+class Patterns(object):
+    """Functions used to substitute tags in template files"""
+    @classmethod
+    def name(cls):
+        """Get and return full name"""
+        return raw_input('Your Name: ')
+
+    @classmethod
+    def email(cls):
+        """Get and return email address"""
+        return raw_input('Your Email: ')
+
+    @classmethod
+    def gh_user(cls):
+        """Get and return GitHub Username"""
+        return raw_input('GitHub Username: ')
+
+    @classmethod
+    def gh_token(cls):
+        """Get and return GitHub API Token"""
+        return raw_input('GitHub API Token: ')
+
+    @classmethod
+    def home(cls):
+        """Return absolute path to the home directory"""
+        return os.path.expanduser('~')
+
 
 def action(src, dst):
     """Check if destination exists and ask for action if not identical"""
     _dst = os.path.expanduser(dst)
     if os.path.exists(dst) and not action.replace_all:
-        if filecmp.cmp(src, _dst):
-            print 'identical %s' % dst
-            return True
         if os.path.islink(_dst):
             _dst_link = os.readlink(_dst)
             if os.path.abspath(_dst_link) == src:
@@ -61,6 +85,7 @@ action.replace_all = False
 def main():
     """Check DESCRIPTION"""
     excluded = [ re.compile(f) for f in EXCLUDE ]
+    template = re.compile('.*\.erb')
     for _src in glob.iglob('*'):
         src = os.path.dirname(os.path.abspath(__file__)) + '/' + _src
         skip = False
@@ -72,19 +97,20 @@ def main():
         if skip == True:
             continue
 
-        dst = '~/.' + _src
+        dst = '/tmp/test/.' + _src
         _dst = os.path.expanduser(dst)
 
         skip = action(src, dst)
-        
+
         if skip == True:
             continue
 
-        if os.path.isfile(src):
-            # Copy w /file attributes
-            shutil.copy2(src, _dst)
-            print 'copying %s' % dst
-        elif os.path.isdir(src):
+        if template.match(_src):
+            renderer = pystache.Renderer()
+            patterns = Patterns()
+            print renderer.render_path(src, patterns)
+            print 'generating %s' % dst
+        else:
             os.symlink(src, _dst)
             print 'linking %s' % dst
 
