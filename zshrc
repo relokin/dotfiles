@@ -31,6 +31,11 @@ ZSH_THEME="ntheme"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 plugins=(battery git debian)
 
+# use .localrc for settings specific to one system
+if [ -f ~/.localrc ]; then
+  source ~/.localrc
+fi
+
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
