@@ -33,11 +33,19 @@ plugins=(git)
 
 # use .localrc for settings specific to one system
 if [ -f ~/.localrc ]; then
-  source ~/.localrc
+    source ~/.localrc
 fi
 
 source $ZSH/oh-my-zsh.sh
 
 # Emacs tramp hangs without this
-[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ '
+if [[ "$TERM" == "dumb" ]]; then
+    unsetopt zle
+    unsetopt prompt_cr
+    unsetopt prompt_subst
+    unfunction precmd
+    unfunction preexec
+    PS1='$ '
+fi
+
 
