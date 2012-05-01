@@ -38,4 +38,6 @@ fi
 
 source $ZSH/oh-my-zsh.sh
 
-# Customize to your needs...
+# Emacs tramp hangs without this
+[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ '
+
