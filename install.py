@@ -22,6 +22,7 @@ import pystache
 
 EXCLUDE = [ 'install.py', 'README\..*', 'LICENSE', '.*~', '#.*#' ]
 TEMPLATE_EXT = '.mustache'
+MAPPED = { 'prelude': '~/.emacs.d' }
 
 class Patterns(object):
     """Functions used to substitute tags in template files"""
@@ -100,7 +101,11 @@ def main():
             n = len(TEMPLATE_EXT)
             dst_abs = '~/.' + src[:(-n)]
         else:
-            dst_abs = '~/.' + src
+            _src = os.path.basename(src)
+            if _src in MAPPED:
+                dst_abs = MAPPED[src]
+            else:
+                dst_abs = '~/.' + src
         _dst_abs = os.path.expanduser(dst_abs)
         skip = action(src_abs, dst_abs, _dst_abs)
 
