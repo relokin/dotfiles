@@ -1,6 +1,6 @@
 [submodule "zsh"]
 	path = zsh
-	url = git://github.com/protias/oh-my-zsh.git
+	url = git@github.com:relokin/oh-my-zsh.git
 [submodule "prelude"]
 	path = prelude
 	url = git@github.com:relokin/prelude.git
