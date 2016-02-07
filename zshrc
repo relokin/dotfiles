@@ -5,7 +5,7 @@ ZSH=$HOME/.zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="ntheme"
+ZSH_THEME="dieter"
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
@@ -29,7 +29,7 @@ ZSH_THEME="ntheme"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git)
+plugins=(gitfast debian emacs mercurial pylint python screen sudo mercurial-mq)
 
 # use .localrc for settings specific to one system
 if [ -f ~/.localrc ]; then
