@@ -3,4 +3,4 @@
 	url = https://github.com/relokin/oh-my-zsh.git
 [submodule "prelude"]
 	path = prelude
-	url = https://github.com/relokin/prelude.git
+	url = git@github.com:relokin/prelude.git
